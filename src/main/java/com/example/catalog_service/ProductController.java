@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
 @RestController
 public class ProductController {
 
@@ -18,6 +22,18 @@ public class ProductController {
                 new Product(3, "Desk Lamp", 799)
 
         );
+    }
+
+    @GetMapping("/api/products/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable("id") long id) {
+
+        for (Product product : listProducts()) {
+            if (product.id() == id) {
+                return ResponseEntity.ok(product);
+            }
+        }
+
+        return ResponseEntity.notFound().build();
 
     }
 

@@ -38,4 +38,32 @@ class ProductEndpointTest {
             assertThat(products.get(0).path("priceInPaise").asInt()).isEqualTo(19_900);
         }
     }
+
+    @Test
+    void returnsProductWhenIdExists() throws Exception {
+        var response = getProduct(1);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+
+        var product = JsonMapper.builder().build().readTree(response.body());
+        assertThat(product.path("id").asLong()).isEqualTo(1);
+        assertThat(product.path("name").asText()).isEqualTo("Java Notebook");
+        assertThat(product.path("priceInPaise").asInt()).isEqualTo(19_900);
+
+    }
+
+    @Test
+    void returns404WhenProductIdDoesNotExist() throws Exception {
+        var response = getProduct(999);
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    private HttpResponse<String> getProduct(long id) throws Exception {
+        var request = HttpRequest.newBuilder(
+                URI.create("http://localhost:" + port + "/api/products/" + id)).GET().build();
+
+        try (var client = HttpClient.newHttpClient()) {
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
+        }
+    }
 }
